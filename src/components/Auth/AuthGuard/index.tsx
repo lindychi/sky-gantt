@@ -19,11 +19,19 @@ export default function AuthGuard({ children }: Props) {
   }, [session, status, router]);
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen min-w-screen flex items-center justify-center text-2xl">
+        로딩중...
+      </div>
+    );
   }
 
   if (!session) {
-    return <div>Redirecting...</div>; // Optional: Show a message while redirecting
+    return (
+      <div className="min-h-screen min-w-screen flex items-center justify-center text-2xl">
+        페이지 이동중...
+      </div>
+    ); // Optional: Show a message while redirecting
   }
 
   return <>{children}</>;
