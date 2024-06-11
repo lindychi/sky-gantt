@@ -29,15 +29,15 @@ export default function RootLayout({
         >
           <AuthProvider>
             <AuthGuard>
-              <div className="flex h-screen">
-                <div className="min-h-screen min-w-[250px] p-6">
-                  <h1 className="text-2xl">투스카이</h1>
-                </div>
-                <Separator orientation="vertical" />
-                <div className="flex flex-col min-w-[calc(100vw-250px)]">
-                  <Header />
-                  <Separator orientation="horizontal" />
-                  {children}
+              <div className="flex flex-col">
+                <Header />
+                <Separator orientation="horizontal" />
+                <div className="flex h-[calc(100vh-64px)]">
+                  <div className="min-h-full min-w-[250px] p-6"></div>
+                  <Separator orientation="vertical" />
+                  <div className="flex flex-col min-w-[calc(100vw-250px)]">
+                    {children}
+                  </div>
                 </div>
               </div>
             </AuthGuard>
