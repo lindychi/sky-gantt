@@ -1,8 +1,8 @@
 "use client";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
-import { Button } from "../ui/button";
+import { signOut, useSession } from "next-auth/react";
+import React from "react";
+
+import { Button } from "@/components/ui/button";
 
 type Props = {};
 

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "../globals.css";
+import "@/app/globals.css";
+
 import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/Auth/AuthProvider";
 import AuthGuard from "@/components/Auth/AuthGuard";
 import Header from "@/components/Header";
 import { Separator } from "@/components/ui/separator";
+import LNB from "@/components/LNB";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,7 +35,9 @@ export default function RootLayout({
                 <Header />
                 <Separator orientation="horizontal" />
                 <div className="flex h-[calc(100vh-64px)]">
-                  <div className="min-h-full min-w-[250px] p-6"></div>
+                  <div className="min-h-full min-w-[250px] p-6">
+                    <LNB />
+                  </div>
                   <Separator orientation="vertical" />
                   <div className="flex flex-col min-w-[calc(100vw-250px)]">
                     {children}
