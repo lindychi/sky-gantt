@@ -10,14 +10,7 @@ export default function Header({}: Props) {
 
   return (
     <div>
-      {!session ? (
-        <>
-          <h1>You are not signed in</h1>
-          <button onClick={() => signIn("google", { callbackUrl: "/" })}>
-            Sign in with Google
-          </button>
-        </>
-      ) : (
+      {session && (
         <>
           <h1>안녕하세요, {session.user?.name}님</h1>
           <button onClick={() => signOut()}>Sign out</button>
