@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import AuthProvider from "@/components/Auth/AuthProvider";
 import AuthGuard from "@/components/Auth/AuthGuard";
 import Header from "@/components/Header";
+import { Separator } from "@/components/ui/separator";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,10 +29,14 @@ export default function RootLayout({
         >
           <AuthProvider>
             <AuthGuard>
-              <div className="flex">
-                <div className="min-h-screen min-w-[250px] bg-slate-400"></div>
+              <div className="flex h-screen">
+                <div className="min-h-screen min-w-[250px] p-6">
+                  <h1 className="text-2xl">투스카이</h1>
+                </div>
+                <Separator orientation="vertical" />
                 <div className="flex flex-col min-w-[calc(100vw-250px)]">
                   <Header />
+                  <Separator orientation="horizontal" />
                   {children}
                 </div>
               </div>
