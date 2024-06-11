@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import AuthProvider from "@/components/Auth/AuthProvider";
+import Header from "@/components/Header";
+import AuthGuard from "@/components/Auth/AuthGuard";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +26,20 @@ export default function RootLayout({
           defaultTheme="dark"
           disableTransitionOnChange
         >
-          {children}
+          <AuthProvider>
+            <AuthGuard>
+              {/* <div className="flex">
+                <div className="min-h-screen min-w-[250px] bg-slate-400"></div>
+                <div className="flex flex-col">
+                  <Header />
+                  {children}
+                </div>
+              </div> */}
+              <div className="min-h-screen min-w-screen flex items-center justify-center text-2xl">
+                검증되지않은 업무는 아직 진행되지않은 업무다.
+              </div>
+            </AuthGuard>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
