@@ -36,7 +36,7 @@ export default function RootLayout({
                 <Separator orientation="horizontal" />
                 <div className="flex h-[calc(100vh-64px)]">
                   <div className="min-h-full min-w-[250px] p-6">
-                    <LNB />
+                    <LNB menuList={[]} />
                   </div>
                   <Separator orientation="vertical" />
                   <div className="flex flex-col min-w-[calc(100vw-250px)]">
