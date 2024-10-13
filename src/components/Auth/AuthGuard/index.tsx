@@ -1,54 +1,54 @@
 "use client";
-import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
 
-type Props = {
-  children: React.ReactNode;
+import { ReactNode, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/supabase";
+import { useState } from "react";
+
+type AuthGuardProps = {
+  children: ReactNode;
 };
 
-export default function AuthGuard({ children }: Props) {
-  const { data: session, status } = useSession();
+export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  const checkAuth = async () => {
+    // Supabase 인증 상태 확인
+    // const session = await supabase.auth.getSession();
+    // if (session) {
+    //   setIsAuthenticated(true); // 사용자가 인증된 경우
+    // } else {
+    //   setIsAuthenticated(false); // 사용자가 인증되지 않은 경우
+    //   router.push("/login"); // 로그인 페이지로 리다이렉트
+    // }
+
+    // 인증 상태 변경 시 처리
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          router.push("/auth/login");
+        }
+      }
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (status === "loading") return; // Do nothing while loading
-      if (!session) router.push("/auth/login");
-    }
-  }, [session, status, router]);
+    checkAuth();
+  }, [router]);
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen min-w-screen flex items-center justify-center text-2xl">
-        로딩중...
-      </div>
-    );
+  // 인증 상태가 결정될 때까지 아무것도 렌더링하지 않음
+  if (isAuthenticated === null) {
+    return <div>로딩 중...</div>;
   }
 
-  if (!session) {
-    return (
-      <div className="min-h-screen min-w-screen flex items-center justify-center text-2xl">
-        페이지 이동중...
-      </div>
-    ); // Optional: Show a message while redirecting
-  }
-
-  if (!session.user?.email?.endsWith("tosky.co.kr")) {
-    return (
-      <div className="min-h-screen min-w-screen flex items-center justify-center text-2xl flex-col gap-1">
-        투스카이 소속의 계정만 사용할 수 있습니다.
-        <button
-          onClick={() => {
-            signOut();
-          }}
-          className="mt-4 p-2 bg-red-500 text-white rounded-md"
-        >
-          로그아웃
-        </button>
-      </div>
-    );
-  }
-
-  return <>{children}</>;
+  // 인증된 경우 children 렌더링
+  return <>{isAuthenticated && children}</>;
 }

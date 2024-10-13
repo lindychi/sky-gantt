@@ -1,6 +1,7 @@
-import GoogleLoginButton from "@/components/Auth/GoogleLoginButton";
 import Image from "next/image";
 import React from "react";
+
+import GoogleLoginButton from "@/components/Auth/GoogleLoginButton";
 
 type Props = {};
 
