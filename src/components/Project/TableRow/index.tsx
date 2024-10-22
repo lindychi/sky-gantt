@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { mutate } from "swr";
 
 import { MenuItem } from "@/types/common";
 import { DoItem } from "@/types/project";
@@ -18,7 +17,9 @@ type Props = {
   project: MenuItem | null;
   originItem?: DoItem;
   depth: number;
-  upperItem: DoItem | null;
+  upperItem?: DoItem;
+  onAddItem?: (item: DoItem) => void;
+  onRemoveItem?: (itemId: string) => void;
 };
 
 export default function ProjectTableRow({
@@ -26,18 +27,26 @@ export default function ProjectTableRow({
   originItem,
   depth,
   upperItem,
+  onAddItem,
+  onRemoveItem,
 }: Props) {
-  const [item, setItem] = React.useState<DoItem | null>(originItem ?? null);
+  const [item, setItem] = React.useState<DoItem | undefined>(originItem);
   const { user } = useAuth();
   const [addLow, setAddLow] = React.useState(false);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!user?.id) return;
     if (!project?.id) return;
     if (!item) return;
 
     if (e.key === "Enter") {
-      addDoItem(user?.id, project?.id, item);
+      const [result] = await addDoItem(user?.id, project?.id, item, upperItem);
+      console.log("result", result);
+      if (result) {
+        console.log("result", result);
+        onAddItem?.(result);
+      }
+      setItem({} as DoItem);
     }
   };
 
@@ -46,17 +55,20 @@ export default function ProjectTableRow({
   };
 
   const handleRemoveItem = async () => {
+    console.log(item, user?.id, project?.id);
     if (!item) return;
     if (!user?.id) return;
     if (!project?.id) return;
 
+    console.log("removeItem", item);
     await removeItem(item);
-    mutate("project_items");
+    console.log("onRemoveItem", item.id);
+    await onRemoveItem?.(item.id);
   };
 
   return (
     <>
-      <TableRow>
+      <TableRow key={item?.id}>
         <TableCell className="max-w-[300px]">
           <div style={{ paddingLeft: 16 * depth }}>
             {!item ? (
@@ -71,19 +83,25 @@ export default function ProjectTableRow({
               <div className="flex items-center gap-1">
                 <Input
                   type="text"
-                  value={item.name}
+                  value={item.name ?? ""}
                   onKeyDown={handleKeyDown}
                   onChange={(e) => {
                     setItem({ ...item, name: e.target.value });
                   }}
                 />
                 {((depth > 0 && upperItem) || depth === 0) && item.id && (
-                  <Button onClick={handleOpenAddLow}>
+                  <Button
+                    onClick={handleOpenAddLow}
+                    className="rounded-full p-1 min-w-10 min-h-10"
+                  >
                     <Plus />
                   </Button>
                 )}
                 {item && (
-                  <Button onClick={handleRemoveItem}>
+                  <Button
+                    onClick={handleRemoveItem}
+                    className="rounded-full p-1 min-w-10 min-h-10"
+                  >
                     <X />
                   </Button>
                 )}
@@ -101,19 +119,24 @@ export default function ProjectTableRow({
       </TableRow>
       {item?.children?.map((child) => (
         <ProjectTableRow
-          key={child.id}
+          key={`${item.id}-${child.id}`}
           project={project}
           depth={depth + 1}
           upperItem={item}
           originItem={child}
+          onAddItem={onAddItem}
+          onRemoveItem={onRemoveItem}
         />
       ))}
       {((depth > 0 && upperItem) || depth === 0) && addLow && (
         <ProjectTableRow
+          key={`${item?.id}-new-row`}
           project={project}
           depth={depth + 1}
           upperItem={item}
           originItem={{} as DoItem}
+          onAddItem={onAddItem}
+          onRemoveItem={onRemoveItem}
         />
       )}
     </>

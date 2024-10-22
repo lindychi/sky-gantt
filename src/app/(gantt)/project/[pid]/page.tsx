@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { DoItem } from "@/types/project";
 import { MenuItem } from "@/types/common";
 
-import { convertToHierarchy } from "@/lib/hierarchy";
+import { convertToHierarchy, findInvalidCascadeItems } from "@/lib/hierarchy";
 
 import { getItemList, getProject } from "@/services/projectService";
 
@@ -25,6 +25,9 @@ export default function ProjectDetail({}: Props) {
   const { pid } = useParams();
   const [project, setProject] = React.useState<MenuItem | null>(null);
   const [itemList, setItemList] = React.useState<DoItem[] | null>(null);
+  const [hierarchyList, setHierarchyList] = React.useState<DoItem[] | null>(
+    null
+  );
 
   const loadProject = async () => {
     const targetPid = pid as string;
@@ -47,8 +50,7 @@ export default function ProjectDetail({}: Props) {
     try {
       const result = await getItemList(project.id);
       if (result && result.length > 0) {
-        console.log(result);
-        setItemList(convertToHierarchy(result, "id", "upper_item_id"));
+        setItemList(result);
       } else {
         console.log(result);
       }
@@ -56,6 +58,32 @@ export default function ProjectDetail({}: Props) {
       console.error(e);
     }
   };
+
+  const handleAddItem = (item: DoItem) => {
+    console.log("handleAddItem", item);
+    setItemList((prev) => {
+      return [...(prev ?? []), item];
+    });
+  };
+
+  const handleRemoveItem = (itemId: string) => {
+    console.log(
+      "handleRemoveItem",
+      itemId,
+      itemList?.length,
+      itemList?.filter((i) => i.id !== itemId).length
+    );
+    setItemList((prev) => {
+      return prev?.filter((i) => i.id !== itemId) ?? [];
+    });
+  };
+
+  useEffect(() => {
+    if (itemList && itemList.length > 0) {
+      console.log("hierarchy rerender", itemList);
+      setHierarchyList(convertToHierarchy(itemList, "id", "upper_item_id"));
+    }
+  }, [itemList]);
 
   useEffect(() => {
     loadItemList();
@@ -82,16 +110,23 @@ export default function ProjectDetail({}: Props) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {itemList?.map((item) => (
+          {hierarchyList?.map((item) => (
             <ProjectTableRow
               key={item.id}
               originItem={item}
               project={project}
               depth={0}
-              upperItem={null}
+              onAddItem={handleAddItem}
+              onRemoveItem={handleRemoveItem}
             />
           ))}
-          <ProjectTableRow project={project} depth={0} upperItem={null} />
+          <ProjectTableRow
+            key={"new_row"}
+            project={project}
+            depth={0}
+            onAddItem={handleAddItem}
+            onRemoveItem={handleRemoveItem}
+          />
         </TableBody>
       </Table>
     </div>
