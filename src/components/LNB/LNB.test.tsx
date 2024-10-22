@@ -1,9 +1,12 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
+
+import { MenuItem } from "@/types/common";
+
 import LNB from "./index";
 
 describe("LNB 컴포넌트", () => {
-  const menuList = [
+  const menuList: MenuItem[] = [
     {
       name: "Home",
       icon: <svg data-testid="home-icon" />,

@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "@/app/globals.css";
 
 import { ThemeProvider } from "@/components/ThemeProvider";
-import AuthGuard from "@/components/Auth/AuthGuard";
+import AuthGuard, { AuthProvider } from "@/components/Auth/AuthGuard";
 import Header from "@/components/Header";
 import { Separator } from "@/components/ui/separator";
 import LNBWrapper from "@/components/LNBWrapper";
@@ -28,21 +28,23 @@ export default function RootLayout({
           defaultTheme="dark"
           disableTransitionOnChange
         >
-          <AuthGuard>
-            <div className="flex flex-col">
-              <Header />
-              <Separator orientation="horizontal" />
-              <div className="flex h-[calc(100vh-64px)]">
-                <div className="min-h-full min-w-[250px] p-6">
-                  <LNBWrapper />
-                </div>
-                <Separator orientation="vertical" />
-                <div className="flex flex-col min-w-[calc(100vw-250px)]">
-                  {children}
+          <AuthProvider>
+            <AuthGuard>
+              <div className="flex flex-col">
+                <Header />
+                <Separator orientation="horizontal" />
+                <div className="flex h-[calc(100vh-64px)]">
+                  <div className="min-h-full min-w-[250px] p-6">
+                    <LNBWrapper />
+                  </div>
+                  <Separator orientation="vertical" />
+                  <div className="flex flex-col min-w-[calc(100vw-250px)]">
+                    {children}
+                  </div>
                 </div>
               </div>
-            </div>
-          </AuthGuard>
+            </AuthGuard>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

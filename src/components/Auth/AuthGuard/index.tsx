@@ -1,34 +1,28 @@
 "use client";
-
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, createContext, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/supabase";
 import { useState } from "react";
 
-type AuthGuardProps = {
-  children: ReactNode;
-};
+import { User } from "@supabase/supabase-js";
+import { AuthContextType, AuthGuardProps } from "@/types/common";
 
-export default function AuthGuard({ children }: AuthGuardProps) {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: AuthGuardProps) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const checkAuth = async () => {
-    // Supabase 인증 상태 확인
-    // const session = await supabase.auth.getSession();
-    // if (session) {
-    //   setIsAuthenticated(true); // 사용자가 인증된 경우
-    // } else {
-    //   setIsAuthenticated(false); // 사용자가 인증되지 않은 경우
-    //   router.push("/login"); // 로그인 페이지로 리다이렉트
-    // }
-
     // 인증 상태 변경 시 처리
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session) {
+          setUser(session.user);
           setIsAuthenticated(true);
         } else {
+          setUser(null);
           setIsAuthenticated(false);
           router.push("/auth/login");
         }
@@ -43,6 +37,24 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     checkAuth();
   }, [router]);
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, checkAuth, user }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}
+
+export default function AuthGuard({ children }: AuthGuardProps) {
+  const { isAuthenticated } = useAuth();
 
   // 인증 상태가 결정될 때까지 아무것도 렌더링하지 않음
   if (isAuthenticated === null) {
