@@ -26,6 +26,7 @@ type Props = {
   upperItem?: DoItem;
   onAddItem?: (item: DoItem) => void;
   onRemoveItem?: (itemId: string) => void;
+  showCompleted?: boolean;
 };
 
 export default function ProjectTableRow({
@@ -35,6 +36,7 @@ export default function ProjectTableRow({
   upperItem,
   onAddItem,
   onRemoveItem,
+  showCompleted,
 }: Props) {
   const [item, setItem] = React.useState<DoItem | undefined>(originItem);
   const { user } = useAuth();
@@ -95,75 +97,85 @@ export default function ProjectTableRow({
 
   return (
     <>
-      <TableRow key={item?.id}>
-        <TableCell className="max-w-[300px]">
-          <div style={{ paddingLeft: 16 * depth }}>
-            {!item ? (
-              <Button
-                onClick={() => {
-                  setItem({} as DoItem);
-                }}
-              >
-                <Plus />
-              </Button>
-            ) : (
-              <div className="flex items-center gap-1">
-                <Input
-                  type="text"
-                  value={item.name ?? ""}
-                  onKeyDown={handleKeyDown}
-                  onChange={(e) => {
-                    setItem({ ...item, name: e.target.value });
-                  }}
-                />
-                {((depth > 0 && upperItem) || depth === 0) && item.id && (
+      {(item?.progress !== 100 ||
+        (item?.progress === 100 && showCompleted)) && (
+        <>
+          <TableRow key={item?.id}>
+            <TableCell className="max-w-[300px]">
+              <div style={{ paddingLeft: 16 * depth }}>
+                {!item ? (
                   <Button
-                    onClick={handleOpenAddLow}
-                    className="rounded-full p-1 min-w-10 min-h-10"
+                    onClick={() => {
+                      setItem({} as DoItem);
+                    }}
                   >
                     <Plus />
                   </Button>
-                )}
-                {item && (
-                  <Button
-                    onClick={handleRemoveItem}
-                    className="rounded-full p-1 min-w-10 min-h-10"
-                  >
-                    <X />
-                  </Button>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <Input
+                      type="text"
+                      value={item.name ?? ""}
+                      onKeyDown={handleKeyDown}
+                      onChange={(e) => {
+                        setItem({ ...item, name: e.target.value });
+                      }}
+                    />
+                    {((depth > 0 && upperItem) || depth === 0) && item.id && (
+                      <Button
+                        onClick={handleOpenAddLow}
+                        className="rounded-full p-1 min-w-10 min-h-10"
+                      >
+                        <Plus />
+                      </Button>
+                    )}
+                    {item && (
+                      <Button
+                        onClick={handleRemoveItem}
+                        className="rounded-full p-1 min-w-10 min-h-10"
+                      >
+                        <X />
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
-          </div>
-        </TableCell>
-        <TableCell>{item?.plan_started}</TableCell>
-        <TableCell>{item?.plan_ended}</TableCell>
-        <TableCell>{item?.actual_started}</TableCell>
-        <TableCell>{item?.actual_ended}</TableCell>
-        <TableCell>{item?.progress}</TableCell>
-        <TableCell>{item?.assignee}</TableCell>
-        <TableCell>
-          <DropdownMenu>
-            <DropdownMenuTrigger>열어</DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={handleCompleteItem}>
-                완료
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </TableCell>
-      </TableRow>
-      {item?.children?.map((child) => (
-        <ProjectTableRow
-          key={`${item.id}-${child.id}`}
-          project={project}
-          depth={depth + 1}
-          upperItem={item}
-          originItem={child}
-          onAddItem={onAddItem}
-          onRemoveItem={onRemoveItem}
-        />
-      ))}
+            </TableCell>
+            <TableCell>{item?.plan_started}</TableCell>
+            <TableCell>{item?.plan_ended}</TableCell>
+            <TableCell>{item?.actual_started}</TableCell>
+            <TableCell>{item?.actual_ended}</TableCell>
+            <TableCell>{item?.progress}</TableCell>
+            <TableCell>{item?.assignee}</TableCell>
+            <TableCell>
+              {item?.id && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger>열어</DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {(item?.progress ?? 0) < 100 && (
+                      <DropdownMenuItem onClick={handleCompleteItem}>
+                        완료
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </TableCell>
+          </TableRow>
+          {item?.children?.map((child) => (
+            <ProjectTableRow
+              key={`${item.id}-${child.id}`}
+              project={project}
+              depth={depth + 1}
+              upperItem={item}
+              originItem={child}
+              onAddItem={onAddItem}
+              onRemoveItem={onRemoveItem}
+              showCompleted={showCompleted}
+            />
+          ))}
+        </>
+      )}
       {((depth > 0 && upperItem) || depth === 0) && addLow && (
         <ProjectTableRow
           key={`${item?.id}-new-row`}

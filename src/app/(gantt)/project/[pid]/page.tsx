@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { DoItem } from "@/types/project";
 import { MenuItem } from "@/types/common";
 
-import { convertToHierarchy, findInvalidCascadeItems } from "@/lib/hierarchy";
+import { convertToHierarchy } from "@/lib/hierarchy";
 
 import { getItemList, getProject } from "@/services/projectService";
 
@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import ProjectTableRow from "@/components/Project/TableRow";
 
 type Props = {};
@@ -28,6 +29,7 @@ export default function ProjectDetail({}: Props) {
   const [hierarchyList, setHierarchyList] = React.useState<DoItem[] | null>(
     null
   );
+  const [showCompleted, setShowCompleted] = React.useState(false);
 
   const loadProject = async () => {
     const targetPid = pid as string;
@@ -95,7 +97,21 @@ export default function ProjectDetail({}: Props) {
 
   return (
     <div className="p-5">
-      <h1>Project ID: {project?.name}</h1>
+      <div className="flex justify-between items-center">
+        <h1>Project ID: {project?.name}</h1>
+        <div className="flex items-center">
+          <div className="flex items-center gap-1">
+            <Checkbox
+              id="show-completed"
+              checked={showCompleted}
+              onClick={() => {
+                setShowCompleted((prev) => !prev);
+              }}
+            />
+            <label htmlFor="show-completed">완료된 항목 표시</label>
+          </div>
+        </div>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -118,6 +134,7 @@ export default function ProjectDetail({}: Props) {
               depth={0}
               onAddItem={handleAddItem}
               onRemoveItem={handleRemoveItem}
+              showCompleted={showCompleted}
             />
           ))}
           <ProjectTableRow
