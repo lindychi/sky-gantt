@@ -48,6 +48,19 @@ export const addDoItem = async (
   return data;
 };
 
+export const editDoItem = async (doItem: DoItem) => {
+  const { data, error } = await supabase
+    .from("project_items")
+    .update(doItem)
+    .eq("id", doItem.id)
+    .select();
+  if (error) {
+    throw error;
+  }
+
+  return data;
+};
+
 export const getItemList = async (pid: string): Promise<DoItem[]> => {
   console.log("getItemList", pid);
 

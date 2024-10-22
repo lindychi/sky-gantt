@@ -4,7 +4,7 @@ import React from "react";
 import { MenuItem } from "@/types/common";
 import { DoItem } from "@/types/project";
 
-import { addDoItem, removeItem } from "@/services/projectService";
+import { addDoItem, editDoItem, removeItem } from "@/services/projectService";
 
 import { useAuth } from "@/components/Auth/AuthGuard";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,12 @@ import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 
 import { Plus, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Props = {
   project: MenuItem | null;
@@ -40,11 +46,24 @@ export default function ProjectTableRow({
     if (!item) return;
 
     if (e.key === "Enter") {
-      const [result] = await addDoItem(user?.id, project?.id, item, upperItem);
-      console.log("result", result);
-      if (result) {
+      if (item.id) {
+        const [result] = await editDoItem(item);
+        if (result) {
+          console.log("result", result);
+          // onEditItem?.(result);
+        }
+      } else {
+        const [result] = await addDoItem(
+          user?.id,
+          project?.id,
+          item,
+          upperItem
+        );
         console.log("result", result);
-        onAddItem?.(result);
+        if (result) {
+          console.log("result", result);
+          onAddItem?.(result);
+        }
       }
       setItem({} as DoItem);
     }
@@ -64,6 +83,14 @@ export default function ProjectTableRow({
     await removeItem(item);
     console.log("onRemoveItem", item.id);
     await onRemoveItem?.(item.id);
+  };
+
+  const handleCompleteItem = async () => {
+    if (item) {
+      await editDoItem({ ...item, progress: 100, children: undefined });
+    } else {
+      console.log("item is null");
+    }
   };
 
   return (
@@ -115,7 +142,16 @@ export default function ProjectTableRow({
         <TableCell>{item?.actual_ended}</TableCell>
         <TableCell>{item?.progress}</TableCell>
         <TableCell>{item?.assignee}</TableCell>
-        <TableCell></TableCell>
+        <TableCell>
+          <DropdownMenu>
+            <DropdownMenuTrigger>열어</DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={handleCompleteItem}>
+                완료
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
       </TableRow>
       {item?.children?.map((child) => (
         <ProjectTableRow

@@ -1,5 +1,5 @@
 export function convertToHierarchy<
-  T extends { children?: T[]; [key: string]: any }
+  T extends { children?: T[]; [key: string]: any; progress?: number }
 >(items: T[], idKey: string, upperIdKey: string): T[] {
   // 결과를 저장할 맵 생성
   const itemMap = new Map<string, T>();
@@ -31,6 +31,15 @@ export function convertToHierarchy<
       const parentItem = itemMap.get(item[upperIdKey]);
       if (parentItem) {
         parentItem.children?.push(currentItem);
+        if (parentItem.children && (parentItem.children?.length ?? 0) > 0) {
+          parentItem.progress =
+            parentItem.children.reduce(
+              (acc, child) => acc + (child.progress ?? 0),
+              0
+            ) / (parentItem.children.length ?? 0);
+        } else {
+          parentItem.progress = 0;
+        }
       }
     }
   });
