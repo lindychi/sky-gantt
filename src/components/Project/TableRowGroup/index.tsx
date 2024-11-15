@@ -189,7 +189,10 @@ export default function ProjectTableRowGroup({
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}
             >
-              <div style={{ paddingLeft: 16 * depth }} className="w-full">
+              <div
+                style={{ paddingLeft: depth === 1 ? 0 : 16 * (depth - 1) }}
+                className="w-full"
+              >
                 {!item ? (
                   <Button
                     className="rounded-full p-1 max-w-6 max-h-6"
