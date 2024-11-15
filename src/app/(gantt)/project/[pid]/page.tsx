@@ -36,6 +36,7 @@ export default function ProjectDetail({}: Props) {
   const itemList = useRef<DoItem[] | null>(null);
   const [hierarchyList, setHierarchyList] = useState<DoItem[] | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [selectList, setSelectList] = useState<string[]>([]);
 
   const loadProject = async () => {
     const targetPid = pid as string;
@@ -98,6 +99,14 @@ export default function ProjectDetail({}: Props) {
     }
   };
 
+  const handleSelectItem = (itemId: string) => {
+    if (selectList.includes(itemId)) {
+      setSelectList(selectList.filter((id) => id !== itemId));
+    } else {
+      setSelectList([...selectList, itemId]);
+    }
+  };
+
   const handleRemoveItem = (itemId: string) => {
     itemList.current = itemList?.current?.filter((i) => i.id !== itemId) ?? [];
     setHierarchyList(
@@ -116,7 +125,7 @@ export default function ProjectDetail({}: Props) {
   }, []);
 
   return (
-    <div className="p-5">
+    <div className="p-5 relative h-[calc(100vh-64px)]">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl">{project?.name}</h1>
         <div className="flex items-center">
@@ -136,10 +145,10 @@ export default function ProjectDetail({}: Props) {
         <TableHeader>
           <TableRow>
             <TableHead>업무</TableHead>
-            <TableHead>계획시작일</TableHead>
+            {/* <TableHead>계획시작일</TableHead>
             <TableHead>계획종료일</TableHead>
             <TableHead>실제시작일</TableHead>
-            <TableHead>실제종료일</TableHead>
+            <TableHead>실제종료일</TableHead> */}
             <TableHead>진척률</TableHead>
             <TableHead>담당자</TableHead>
             <TableHead>비고</TableHead>
@@ -155,6 +164,8 @@ export default function ProjectDetail({}: Props) {
               onAddItem={handleAddItem}
               onRemoveItem={handleRemoveItem}
               onEditItem={handleEditItem}
+              onSelect={handleSelectItem}
+              selectList={selectList}
               showCompleted={showCompleted}
             />
           ))}
@@ -167,6 +178,11 @@ export default function ProjectDetail({}: Props) {
           />
         </TableBody>
       </Table>
+      {selectList.length > 0 && (
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 border rounded-sm p-2">
+          {selectList.length} 항목 선택중
+        </div>
+      )}
     </div>
   );
 }

@@ -22,6 +22,7 @@ import NameLinkSpan from "@/components/Project/NameLinkSpan";
 import IssueProgress from "@/components/Project/IssueProgress";
 
 import { CornerDownRight, Ellipsis, Plus, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Props = {
   project: MenuItem | null;
@@ -31,6 +32,8 @@ type Props = {
   onAddItem?: (item: DoItem) => void;
   onRemoveItem?: (itemId: string) => void;
   onEditItem?: (item: DoItem) => void;
+  onSelect?: (itemId: string) => void;
+  selectList?: string[];
   showCompleted?: boolean;
 };
 
@@ -42,6 +45,8 @@ export default function ProjectTableRowGroup({
   onAddItem,
   onRemoveItem,
   onEditItem,
+  onSelect,
+  selectList,
   showCompleted,
 }: Props) {
   const [item, setItem] = useState<DoItem | undefined>(originItem);
@@ -140,7 +145,9 @@ export default function ProjectTableRowGroup({
         JSON.stringify(prevData.current) === JSON.stringify(item) ||
         prevData.current?.name?.includes(item?.name ?? "")
       ) {
-        setItem({ name: "" } as DoItem);
+        if (!item?.id) {
+          setItem({ name: "" } as DoItem);
+        }
         setEditMode(false);
         return;
       } else {
@@ -185,10 +192,16 @@ export default function ProjectTableRowGroup({
             }
           >
             <TableCell
-              className="max-w-[600px] py-[9px] flex"
+              className="max-w-[600px] py-[9px] flex items-center gap-2"
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}
             >
+              {item?.id && (
+                <Checkbox
+                  checked={selectList?.includes(item.id)}
+                  onClick={() => onSelect?.(item.id)}
+                />
+              )}
               <div
                 style={{ paddingLeft: depth === 1 ? 0 : 16 * (depth - 1) }}
                 className="w-full"
@@ -254,10 +267,10 @@ export default function ProjectTableRowGroup({
                 )}
               </div>
             </TableCell>
-            <TableCell className="py-0">{item?.plan_started}</TableCell>
+            {/* <TableCell className="py-0">{item?.plan_started}</TableCell>
             <TableCell className="py-0">{item?.plan_ended}</TableCell>
             <TableCell className="py-0">{item?.actual_started}</TableCell>
-            <TableCell className="py-0">{item?.actual_ended}</TableCell>
+            <TableCell className="py-0">{item?.actual_ended}</TableCell> */}
             <TableCell className="py-0">
               {item?.id && (
                 <>
