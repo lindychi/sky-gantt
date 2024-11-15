@@ -11,4 +11,8 @@ export type DoItem = {
   notes?: string[];
   upper_item_id?: string;
   children?: DoItem[];
+
+  totalChildrenCount?: number;
+  completeChildrenCount?: number;
+  inProgressChildrenCount?: number;
 };

@@ -1,5 +1,12 @@
 export function convertToHierarchy<
-  T extends { children?: T[]; [key: string]: any; progress?: number }
+  T extends {
+    children?: T[];
+    [key: string]: any;
+    progress?: number;
+    completeChildrenCount?: number;
+    inProgressChildrenCount?: number;
+    totalChildrenCount?: number;
+  }
 >(items: T[], idKey: string, upperIdKey: string): T[] {
   // 결과를 저장할 맵 생성
   const itemMap = new Map<string, T>();
@@ -37,6 +44,14 @@ export function convertToHierarchy<
               (acc, child) => acc + (child.progress ?? 0),
               0
             ) / (parentItem.children.length ?? 0);
+          parentItem.completeChildrenCount = parentItem.children.filter(
+            (child) => child.progress === 100
+          ).length;
+          parentItem.inProgressChildrenCount = parentItem.children.filter(
+            (child) =>
+              child.progress && child.progress > 0 && child.progress < 100
+          ).length;
+          parentItem.totalChildrenCount = parentItem.children.length;
         } else {
           parentItem.progress = 0;
         }

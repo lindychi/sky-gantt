@@ -107,10 +107,12 @@ export default function ProjectDetail({}: Props) {
 
   useEffect(() => {
     loadItemList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project]);
 
   useEffect(() => {
     loadProject();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

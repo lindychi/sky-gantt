@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { MenuItem } from "@/types/common";
 import { DoItem } from "@/types/project";
 
-import { editDoItem, removeItem } from "@/services/projectService";
+import { removeItem } from "@/services/projectService";
 
 import { useAuth } from "@/components/Auth/AuthGuard";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import IssueLinkSpan from "@/components/Project/IssueLinkSpan";
+import IssueProgress from "@/components/Project/IssueProgress";
 
 import { CornerDownRight, Ellipsis, Plus, X } from "lucide-react";
 
@@ -254,7 +255,32 @@ export default function ProjectTableRowGroup({
             <TableCell className="py-0">{item?.plan_ended}</TableCell>
             <TableCell className="py-0">{item?.actual_started}</TableCell>
             <TableCell className="py-0">{item?.actual_ended}</TableCell>
-            <TableCell className="py-0">{item?.progress}</TableCell>
+            <TableCell className="py-0">
+              {item?.id && (
+                <>
+                  {item?.progress?.toFixed(0)}%
+                  {item?.children && item?.children.length > 0 ? (
+                    <IssueProgress
+                      valueList={[
+                        item?.completeChildrenCount ?? 0,
+                        item?.inProgressChildrenCount ?? 0,
+                      ]}
+                      total={item?.totalChildrenCount ?? 0}
+                    />
+                  ) : (
+                    <IssueProgress
+                      valueList={[
+                        item?.progress === 100 ? 100 : 0,
+                        item?.progress && item?.progress < 100
+                          ? item?.progress
+                          : 0,
+                      ]}
+                      total={100}
+                    />
+                  )}
+                </>
+              )}
+            </TableCell>
             <TableCell className="py-0">{item?.assignee}</TableCell>
             <TableCell className="py-0">
               {item?.id && (
