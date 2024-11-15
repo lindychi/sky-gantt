@@ -8,7 +8,12 @@ import { MenuItem } from "@/types/common";
 
 import { convertToHierarchy } from "@/lib/hierarchy";
 
-import { addDoItem, getItemList, getProject } from "@/services/projectService";
+import {
+  addDoItem,
+  editDoItem,
+  getItemList,
+  getProject,
+} from "@/services/projectService";
 
 import {
   Table,
@@ -70,10 +75,6 @@ export default function ProjectDetail({}: Props) {
 
     try {
       const [newItem] = await addDoItem(user?.id, project?.id, item);
-      console.log("handleAddItem", newItem);
-      // setItemList((prev) => {
-      //   return [...(prev ?? []), newItem];
-      // });
       itemList.current = [...(itemList.current ?? []), newItem];
       setHierarchyList(
         convertToHierarchy(itemList.current, "id", "upper_item_id")
@@ -83,29 +84,26 @@ export default function ProjectDetail({}: Props) {
     }
   };
 
+  const handleEditItem = async (item: DoItem) => {
+    try {
+      const [newItem] = await editDoItem(item);
+
+      itemList.current =
+        itemList.current?.map((i) => (i.id === item.id ? newItem : i)) ?? [];
+      setHierarchyList(
+        convertToHierarchy(itemList.current, "id", "upper_item_id")
+      );
+    } catch (e: any) {
+      console.error(e);
+    }
+  };
+
   const handleRemoveItem = (itemId: string) => {
-    console.log(
-      "handleRemoveItem",
-      itemId,
-      itemList?.current?.length,
-      itemList?.current?.filter((i) => i.id !== itemId).length
-    );
     itemList.current = itemList?.current?.filter((i) => i.id !== itemId) ?? [];
     setHierarchyList(
       convertToHierarchy(itemList.current, "id", "upper_item_id")
     );
   };
-
-  // useEffect(() => {
-  //   if (itemList && itemList.length > 0) {
-  //     // console.log(
-  //     //   "hierarchy rerender",
-  //     //   itemList,
-  //     //   convertToHierarchy(itemList, "id", "upper_item_id")
-  //     // );
-  //     setHierarchyList(convertToHierarchy(itemList, "id", "upper_item_id"));
-  //   }
-  // }, [itemList]);
 
   useEffect(() => {
     loadItemList();
@@ -154,6 +152,7 @@ export default function ProjectDetail({}: Props) {
               depth={0}
               onAddItem={handleAddItem}
               onRemoveItem={handleRemoveItem}
+              onEditItem={handleEditItem}
               showCompleted={showCompleted}
             />
           ))}

@@ -29,7 +29,7 @@ export default function AddProject({}: Props) {
   };
 
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1 items-center">
       <Input
         id="project"
         type="text"
@@ -37,7 +37,13 @@ export default function AddProject({}: Props) {
         value={projectName}
         onChange={(e) => setProjectName(e.target.value)}
       />
-      <Button onClick={handleAddProject}>+</Button>
+      <Button
+        onClick={handleAddProject}
+        className="rounded-full p-1 min-w-6 max-h-6"
+        disabled={projectName.length === 0}
+      >
+        +
+      </Button>
     </div>
   );
 }

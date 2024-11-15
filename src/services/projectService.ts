@@ -42,10 +42,12 @@ export const addDoItem = async (uid: string, pid: string, doItem: DoItem) => {
 };
 
 export const editDoItem = async (doItem: DoItem) => {
+  const { children, ...restDoItem } = doItem;
+
   const { data, error } = await supabase
     .from("project_items")
-    .update(doItem)
-    .eq("id", doItem.id)
+    .update(restDoItem)
+    .eq("id", restDoItem.id)
     .select();
   if (error) {
     throw error;

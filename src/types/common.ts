@@ -8,6 +8,7 @@ export interface MenuItem {
   id?: string;
   user_id?: string;
   created_at?: string;
+  jira_url?: string;
 }
 
 export interface LNBProps {

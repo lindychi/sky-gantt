@@ -1,6 +1,8 @@
 "use client";
 import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { MenuItem } from "@/types/common";
 import { DoItem } from "@/types/project";
 
@@ -16,9 +18,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import JiraLinkSpan from "@/components/Project/JiraLinkSpan";
 
 import { CornerDownRight, Ellipsis, Plus, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 type Props = {
   project: MenuItem | null;
@@ -27,6 +29,7 @@ type Props = {
   upperItem?: DoItem;
   onAddItem?: (item: DoItem) => void;
   onRemoveItem?: (itemId: string) => void;
+  onEditItem?: (item: DoItem) => void;
   showCompleted?: boolean;
 };
 
@@ -37,6 +40,7 @@ export default function ProjectTableRowGroup({
   upperItem,
   onAddItem,
   onRemoveItem,
+  onEditItem,
   showCompleted,
 }: Props) {
   const [item, setItem] = useState<DoItem | undefined>(originItem);
@@ -51,14 +55,11 @@ export default function ProjectTableRowGroup({
   };
 
   const handleRemoveItem = async () => {
-    console.log(item, user?.id, project?.id);
     if (!item) return;
     if (!user?.id) return;
     if (!project?.id) return;
 
-    console.log("removeItem", item);
     await removeItem(item);
-    console.log("onRemoveItem", item.id);
     await onRemoveItem?.(item.id);
   };
 
@@ -90,17 +91,24 @@ export default function ProjectTableRowGroup({
         upper_item_id: upperItem?.id,
       } as DoItem;
 
-      if (item?.id) {
-        await editDoItem(itemIncludeUpperItem);
+      if (!!itemIncludeUpperItem?.id) {
+        onEditItem?.(itemIncludeUpperItem);
       } else {
         if (!item) return;
         if (!user?.id) return;
         if (!project?.id) return;
         onAddItem?.(itemIncludeUpperItem);
         setItem({ name: "" } as DoItem);
-        setEditMode(false);
       }
+      setEditMode(false);
     }
+  };
+
+  const replaceJiraIssue = (text: string) => {
+    return text.replace(
+      /#([A-Za-z]+-\d+)/g,
+      `<a href="${project?.jira_url}/$1">$1</a>`
+    );
   };
 
   useEffect(() => {
@@ -139,7 +147,7 @@ export default function ProjectTableRowGroup({
                   </Button>
                 ) : (
                   <div className="flex items-center gap-1 justify-between">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 w-full">
                       {depth > 0 && <CornerDownRight size={12} />}
                       {!item?.id || editMode ? (
                         <Input
@@ -149,10 +157,15 @@ export default function ProjectTableRowGroup({
                           onChange={(e) => {
                             setItem({ ...item, name: e.target.value });
                           }}
-                          className="h-[32px]"
+                          className="h-[32px] w-full"
                         />
                       ) : (
-                        <span>{item.name}</span>
+                        <span onClick={() => setEditMode(true)}>
+                          <JiraLinkSpan
+                            text={item.name}
+                            jiraUrl={project?.jira_url}
+                          />
+                        </span>
                       )}
                     </div>
                     <div
@@ -161,14 +174,16 @@ export default function ProjectTableRowGroup({
                         "opacity-0": !hover,
                       })}
                     >
-                      {((depth > 0 && upperItem) || depth === 0) && item.id && (
-                        <Button
-                          onClick={handleOpenAddLow}
-                          className="rounded-full p-1 max-w-6 max-h-6"
-                        >
-                          <Plus />
-                        </Button>
-                      )}
+                      {((depth > 0 && upperItem) || depth === 0) &&
+                        item.id &&
+                        !addLow && (
+                          <Button
+                            onClick={handleOpenAddLow}
+                            className="rounded-full p-1 max-w-6 max-h-6"
+                          >
+                            <Plus />
+                          </Button>
+                        )}
                       {item && item.id && (
                         <Button
                           onClick={handleRemoveItem}
@@ -214,6 +229,7 @@ export default function ProjectTableRowGroup({
               originItem={child}
               onAddItem={onAddItem}
               onRemoveItem={onRemoveItem}
+              onEditItem={onEditItem}
               showCompleted={showCompleted}
             />
           ))}
@@ -224,10 +240,7 @@ export default function ProjectTableRowGroup({
               depth={depth + 1}
               upperItem={item}
               originItem={{} as DoItem}
-              onAddItem={(item) => {
-                onAddItem?.(item);
-                setAddLow(false);
-              }}
+              onAddItem={onAddItem}
               onRemoveItem={onRemoveItem}
             />
           )}
