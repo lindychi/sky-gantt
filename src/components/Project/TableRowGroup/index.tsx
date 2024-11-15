@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import IssueLinkSpan from "@/components/Project/IssueLinkSpan";
+import NameLinkSpan from "@/components/Project/NameLinkSpan";
 import IssueProgress from "@/components/Project/IssueProgress";
 
 import { CornerDownRight, Ellipsis, Plus, X } from "lucide-react";
@@ -215,7 +215,7 @@ export default function ProjectTableRowGroup({
                         />
                       ) : (
                         <span onClick={() => setEditMode(true)}>
-                          <IssueLinkSpan
+                          <NameLinkSpan
                             text={item.name}
                             jiraUrl={project?.jira_url}
                           />
