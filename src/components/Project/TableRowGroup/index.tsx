@@ -50,6 +50,74 @@ export default function ProjectTableRowGroup({
   const [editMode, setEditMode] = useState(false);
   const [hover, setHover] = useState(false);
 
+  // 작업 예정, 진행중, 테스트, 개발계 배포, 검수, 운영계 배포
+  const progressStep = [
+    {
+      value: 0,
+      label: "작업예정",
+    },
+    {
+      value: 25,
+      label: "진행중",
+    },
+    {
+      value: 50,
+      label: "테스트",
+    },
+    {
+      value: 60,
+      label: "개발계 배포",
+    },
+    {
+      value: 80,
+      label: "검수",
+    },
+    {
+      value: 90,
+      label: "운영계 배포",
+    },
+    {
+      value: 100,
+      label: "완료",
+    },
+  ];
+
+  const getPrevNextProgress = () => {
+    if (!item) return;
+    if ((item.children?.length ?? 0) > 0) return;
+
+    const currentIndex = progressStep.findIndex(
+      (step) => step.value === item?.progress
+    );
+
+    const returnArray = [];
+
+    if (currentIndex - 1 >= 0) {
+      returnArray.push(progressStep[currentIndex - 1]);
+    }
+
+    if (currentIndex + 1 < progressStep.length) {
+      returnArray.push(progressStep[currentIndex + 1]);
+    }
+
+    return returnArray.map((item, index) => (
+      <DropdownMenuItem
+        key={index}
+        onClick={() => handleProgress?.(item.value)}
+      >
+        {item.label} ({item.value}%)
+      </DropdownMenuItem>
+    ));
+  };
+
+  const handleProgress = async (progress: number) => {
+    if (!item) return;
+    if (!user?.id) return;
+    if (!project?.id) return;
+
+    onEditItem?.({ ...item, progress } as DoItem);
+  };
+
   const handleOpenAddLow = () => {
     setAddLow((prev) => !prev);
   };
@@ -61,14 +129,6 @@ export default function ProjectTableRowGroup({
 
     await removeItem(item);
     await onRemoveItem?.(item.id);
-  };
-
-  const handleCompleteItem = async () => {
-    if (item) {
-      await editDoItem({ ...item, progress: 100, children: undefined });
-    } else {
-      console.log("item is null");
-    }
   };
 
   const handleKeyDown = async (e: KeyboardEvent<HTMLInputElement>) => {
@@ -203,11 +263,7 @@ export default function ProjectTableRowGroup({
                     <Ellipsis size={12} />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    {(item?.progress ?? 0) < 100 && (
-                      <DropdownMenuItem onClick={handleCompleteItem}>
-                        완료
-                      </DropdownMenuItem>
-                    )}
+                    {getPrevNextProgress()}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
