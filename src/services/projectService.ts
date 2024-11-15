@@ -25,20 +25,13 @@ export const getProject = async (pid: string) => {
   return data;
 };
 
-export const addDoItem = async (
-  uid: string,
-  pid: string,
-  doItem: DoItem,
-  upperItem?: DoItem
-) => {
-  console.log({ ...doItem, user_id: uid, project_id: pid });
+export const addDoItem = async (uid: string, pid: string, doItem: DoItem) => {
   const { data, error } = await supabase
     .from("project_items")
     .insert({
       ...doItem,
       user_id: uid,
       project_id: pid,
-      upper_item_id: upperItem?.id,
     })
     .select();
   if (error) {
@@ -62,8 +55,6 @@ export const editDoItem = async (doItem: DoItem) => {
 };
 
 export const getItemList = async (pid: string): Promise<DoItem[]> => {
-  console.log("getItemList", pid);
-
   const { data, error } = await supabase
     .from("project_items")
     .select("*")

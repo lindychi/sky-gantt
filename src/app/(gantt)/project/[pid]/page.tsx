@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { DoItem } from "@/types/project";
@@ -8,7 +8,7 @@ import { MenuItem } from "@/types/common";
 
 import { convertToHierarchy } from "@/lib/hierarchy";
 
-import { getItemList, getProject } from "@/services/projectService";
+import { addDoItem, getItemList, getProject } from "@/services/projectService";
 
 import {
   Table,
@@ -18,18 +18,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import ProjectTableRow from "@/components/Project/TableRow";
+import ProjectTableRowGroup from "@/components/Project/TableRowGroup";
+import { useAuth } from "@/components/Auth/AuthGuard";
 
 type Props = {};
 
 export default function ProjectDetail({}: Props) {
   const { pid } = useParams();
-  const [project, setProject] = React.useState<MenuItem | null>(null);
-  const [itemList, setItemList] = React.useState<DoItem[] | null>(null);
-  const [hierarchyList, setHierarchyList] = React.useState<DoItem[] | null>(
-    null
-  );
-  const [showCompleted, setShowCompleted] = React.useState(false);
+  const { user } = useAuth();
+
+  const [project, setProject] = useState<MenuItem | null>(null);
+  const itemList = useRef<DoItem[] | null>(null);
+  const [hierarchyList, setHierarchyList] = useState<DoItem[] | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const loadProject = async () => {
     const targetPid = pid as string;
@@ -52,7 +53,10 @@ export default function ProjectDetail({}: Props) {
     try {
       const result = await getItemList(project.id);
       if (result && result.length > 0) {
-        setItemList(result);
+        itemList.current = result;
+        setHierarchyList(
+          convertToHierarchy(itemList.current, "id", "upper_item_id")
+        );
       } else {
         console.log(result);
       }
@@ -61,31 +65,47 @@ export default function ProjectDetail({}: Props) {
     }
   };
 
-  const handleAddItem = (item: DoItem) => {
-    console.log("handleAddItem", item);
-    setItemList((prev) => {
-      return [...(prev ?? []), item];
-    });
+  const handleAddItem = async (item: DoItem) => {
+    if (!user || !project || !project.id) return;
+
+    try {
+      const [newItem] = await addDoItem(user?.id, project?.id, item);
+      console.log("handleAddItem", newItem);
+      // setItemList((prev) => {
+      //   return [...(prev ?? []), newItem];
+      // });
+      itemList.current = [...(itemList.current ?? []), newItem];
+      setHierarchyList(
+        convertToHierarchy(itemList.current, "id", "upper_item_id")
+      );
+    } catch (e: any) {
+      console.error(e);
+    }
   };
 
   const handleRemoveItem = (itemId: string) => {
     console.log(
       "handleRemoveItem",
       itemId,
-      itemList?.length,
-      itemList?.filter((i) => i.id !== itemId).length
+      itemList?.current?.length,
+      itemList?.current?.filter((i) => i.id !== itemId).length
     );
-    setItemList((prev) => {
-      return prev?.filter((i) => i.id !== itemId) ?? [];
-    });
+    itemList.current = itemList?.current?.filter((i) => i.id !== itemId) ?? [];
+    setHierarchyList(
+      convertToHierarchy(itemList.current, "id", "upper_item_id")
+    );
   };
 
-  useEffect(() => {
-    if (itemList && itemList.length > 0) {
-      console.log("hierarchy rerender", itemList);
-      setHierarchyList(convertToHierarchy(itemList, "id", "upper_item_id"));
-    }
-  }, [itemList]);
+  // useEffect(() => {
+  //   if (itemList && itemList.length > 0) {
+  //     // console.log(
+  //     //   "hierarchy rerender",
+  //     //   itemList,
+  //     //   convertToHierarchy(itemList, "id", "upper_item_id")
+  //     // );
+  //     setHierarchyList(convertToHierarchy(itemList, "id", "upper_item_id"));
+  //   }
+  // }, [itemList]);
 
   useEffect(() => {
     loadItemList();
@@ -98,7 +118,7 @@ export default function ProjectDetail({}: Props) {
   return (
     <div className="p-5">
       <div className="flex justify-between items-center">
-        <h1>Project ID: {project?.name}</h1>
+        <h1 className="text-2xl">{project?.name}</h1>
         <div className="flex items-center">
           <div className="flex items-center gap-1">
             <Checkbox
@@ -127,7 +147,7 @@ export default function ProjectDetail({}: Props) {
         </TableHeader>
         <TableBody>
           {hierarchyList?.map((item) => (
-            <ProjectTableRow
+            <ProjectTableRowGroup
               key={item.id}
               originItem={item}
               project={project}
@@ -137,8 +157,8 @@ export default function ProjectDetail({}: Props) {
               showCompleted={showCompleted}
             />
           ))}
-          <ProjectTableRow
-            key={"new_row"}
+          <ProjectTableRowGroup
+            key={"root-new-row"}
             project={project}
             depth={0}
             onAddItem={handleAddItem}
