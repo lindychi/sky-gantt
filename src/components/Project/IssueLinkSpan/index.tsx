@@ -2,9 +2,9 @@ import React from "react";
 
 type Props = { text: string; jiraUrl?: string };
 
-export default function JiraLinkSpan({ text, jiraUrl }: Props) {
+export default function IssueLinkSpan({ text, jiraUrl }: Props) {
   const replaceJiraLinks = (text: string) => {
-    const regex = /#([A-Za-z0-9]+-\d+)/g;
+    const regex = /#(\w+)/g;
     const parts = text.split(regex);
 
     return parts.map((part, index) => {

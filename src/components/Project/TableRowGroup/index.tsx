@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import JiraLinkSpan from "@/components/Project/JiraLinkSpan";
+import IssueLinkSpan from "@/components/Project/IssueLinkSpan";
 
 import { CornerDownRight, Ellipsis, Plus, X } from "lucide-react";
 
@@ -104,13 +104,6 @@ export default function ProjectTableRowGroup({
     }
   };
 
-  const replaceJiraIssue = (text: string) => {
-    return text.replace(
-      /#([A-Za-z]+-\d+)/g,
-      `<a href="${project?.jira_url}/$1">$1</a>`
-    );
-  };
-
   useEffect(() => {
     setItem(originItem);
   }, [originItem]);
@@ -161,7 +154,7 @@ export default function ProjectTableRowGroup({
                         />
                       ) : (
                         <span onClick={() => setEditMode(true)}>
-                          <JiraLinkSpan
+                          <IssueLinkSpan
                             text={item.name}
                             jiraUrl={project?.jira_url}
                           />
