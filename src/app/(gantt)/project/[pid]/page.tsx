@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { DoItem } from "@/types/project";
 import { MenuItem } from "@/types/common";
 
-import { convertToHierarchy } from "@/lib/hierarchy";
+import { convertToHierarchy } from "@/libs/hierarchy";
 
 import {
   addDoItem,

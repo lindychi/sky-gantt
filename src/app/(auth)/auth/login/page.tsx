@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 
 import GoogleLoginButton from "@/components/Auth/GoogleLoginButton";
+import GoogleLoginButtonImprove from "@/components/Auth/GoogleLoginButtonImprove";
 
 type Props = {};
 
@@ -18,6 +19,8 @@ export default function AuthLoginPage({}: Props) {
           />
           <h1 className="text-4xl font-bold text-center pt-2">Sky Gantt</h1>
         </div>
+
+        <GoogleLoginButtonImprove />
         <GoogleLoginButton />
       </div>
     </div>

@@ -80,3 +80,28 @@ export const removeItem = async (item: DoItem) => {
 
   return data;
 };
+
+export const getPermissionList = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("project_permissions")
+    .select("*")
+    .eq("user_id", userId);
+  if (error) {
+    console.error(error);
+  }
+
+  return data;
+};
+
+// 권한이 있는 프로젝트를 가져오는 API
+export const getPermissionProjectList = async (projectIdList: string[]) => {
+  const { data, error } = await supabase
+    .from("project_permissions")
+    .select("*")
+    .in("project_id", projectIdList);
+  if (error) {
+    console.error(error);
+  }
+
+  return { data, error };
+};

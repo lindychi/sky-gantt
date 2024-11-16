@@ -1,7 +1,7 @@
 "use client";
 import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/libs/utils";
 
 import { MenuItem } from "@/types/common";
 import { DoItem } from "@/types/project";

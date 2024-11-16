@@ -24,7 +24,7 @@ export function AuthProvider({ children }: AuthGuardProps) {
         } else {
           setUser(null);
           setIsAuthenticated(false);
-          router.push("/auth/login");
+          // router.push("/auth/login");
         }
       }
     );

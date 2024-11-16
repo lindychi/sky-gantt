@@ -28,23 +28,23 @@ export default function RootLayout({
           defaultTheme="dark"
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <AuthGuard>
-              <div className="flex flex-col">
-                <Header />
-                <Separator orientation="horizontal" />
-                <div className="flex h-[calc(100vh-64px)]">
-                  <div className="min-h-full min-w-[250px] p-6">
-                    <LNBWrapper />
-                  </div>
-                  <Separator orientation="vertical" />
-                  <div className="flex flex-col min-w-[calc(100vw-250px)]">
-                    {children}
-                  </div>
-                </div>
+          {/* <AuthProvider> */}
+          {/* <AuthGuard> */}
+          <div className="flex flex-col">
+            <Header />
+            <Separator orientation="horizontal" />
+            <div className="flex h-[calc(100vh-64px)]">
+              <div className="min-h-full min-w-[250px] p-6">
+                <LNBWrapper />
               </div>
-            </AuthGuard>
-          </AuthProvider>
+              <Separator orientation="vertical" />
+              <div className="flex flex-col min-w-[calc(100vw-250px)]">
+                {children}
+              </div>
+            </div>
+          </div>
+          {/* </AuthGuard>
+          </AuthProvider> */}
         </ThemeProvider>
       </body>
     </html>
