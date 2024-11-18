@@ -92,28 +92,16 @@ export default function ProjectTableRowGroup({
     if (!item) return;
     if ((item.children?.length ?? 0) > 0) return;
 
-    const currentIndex = progressStep.findIndex(
-      (step) => step.value === item?.progress
-    );
-
-    const returnArray = [];
-
-    if (currentIndex - 1 >= 0) {
-      returnArray.push(progressStep[currentIndex - 1]);
-    }
-
-    if (currentIndex + 1 < progressStep.length) {
-      returnArray.push(progressStep[currentIndex + 1]);
-    }
-
-    return returnArray.map((item, index) => (
-      <DropdownMenuItem
-        key={index}
-        onClick={() => handleProgress?.(item.value)}
-      >
-        {item.label} ({item.value}%)
-      </DropdownMenuItem>
-    ));
+    return progressStep
+      .filter((step) => step.value !== item?.progress)
+      .map((item, index) => (
+        <DropdownMenuItem
+          key={index}
+          onClick={() => handleProgress?.(item.value)}
+        >
+          {item.label} ({item.value}%)
+        </DropdownMenuItem>
+      ));
   };
 
   const handleProgress = async (progress: number) => {
